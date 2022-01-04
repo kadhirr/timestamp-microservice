@@ -1,7 +1,4 @@
-// server.js
-// where your node app starts
 
-// init project
 var express = require('express');
 var app = express();
 
@@ -10,10 +7,10 @@ var app = express();
 var cors = require('cors');
 app.use(cors({optionsSuccessStatus: 200}));  // some legacy browsers choke on 204
 
-// http://expressjs.com/en/starter/static-files.html
+
 app.use(express.static('public'));
 
-// http://expressjs.com/en/starter/basic-routing.html
+
 app.get("/", function (req, res) {
   res.sendFile(__dirname + '/views/index.html');
 });
@@ -24,9 +21,39 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+app.get("/api/", function (req, res) {
+  let reqDate = new Date();
+  let resObj = {unix: reqDate.getTime(), utc: reqDate.toUTCString()};
+  res.json(resObj);
+});
+
+// Check if date is null, then initialize with current date. If date is a number, use parseInt()
+// else we are using a date string. Create object with required data, and send using res.json()
+
+app.get("/api/:date", function(req, res){
+  console.log(req.params);
+
+  let reqDate;
+  if(!isNaN(req.params.date)){
+    reqDate = new Date(parseInt(req.params.date));
+    let resObj = {unix: reqDate.getTime(), utc: reqDate.toUTCString()};
+    res.json(resObj);
+  }
+  else{
+    reqDate = new Date(req.params.date);
+    if(reqDate == "Invalid Date")
+      res.json({error: "Invalid Date"});
+    else{
+      let resObj = {unix: reqDate.getTime(), utc: reqDate.toUTCString()};
+      res.json(resObj);
+    }
+  }
+  
+})
 
 
 // listen for requests :)
-var listener = app.listen(process.env.PORT, function () {
+// replace port with process.env.PORT
+var listener = app.listen(3000, function () {
   console.log('Your app is listening on port ' + listener.address().port);
 });
